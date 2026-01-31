@@ -12,3 +12,33 @@ nav>ul>li {
 nav>ul>li::before {
     content: "➺ ";
 }
+
+/* Home page project grid */
+p.project {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: 1rem;
+}
+
+/* Poems page separator */
+div.sep {
+    --height: 4rem;
+    --line-width: 8rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: var(--height);
+    line-height: var(--height);
+    color: white;
+    font-size: 2.5rem;
+    padding-left: 1rem;
+}
+
+div.sep::before, div.sep::after {
+    display: block;
+    content: " ";
+    height: 1px;
+    width: var(--line-width);
+    background-color: white;
+}

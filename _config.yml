@@ -1,0 +1,11 @@
+# Jekyll configuration for Linnea Isaac's website
+title: Linnea Isaac
+description: Linnea Isaac's personal website
+
+# Build settings
+markdown: kramdown
+
+# Exclude files from the build
+exclude:
+  - serve.sh
+  - README.md
