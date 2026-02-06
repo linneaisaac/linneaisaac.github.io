@@ -5,6 +5,12 @@ description: Linnea Isaac's personal website
 # Build settings
 markdown: kramdown
 
+# Blog post permalinks (keeps URLs like /blog/postname/)
+permalink: /blog/:slug/
+
+# Excerpt settings
+excerpt_separator: <!--more-->
+
 # Exclude files from the build
 exclude:
   - serve.sh

@@ -16,42 +16,47 @@ _includes/
   footer.html        # Shared footer (dynamic year)
 _layouts/
   default.html       # Main page template
+  post.html          # Blog post template (includes date)
+_posts/              # Blog posts (date in filename)
+  2026-02-03-howtohearvoices.md
+  2025-12-01-thesickness.md
+  2024-10-01-thedreaming.md
+  2023-01-05-college.md
 index.html           # Home page
-blog/
-  index.html         # Blog listing
-  college/           # Blog post
-  thedreaming/       # Blog post
-  thesickness/       # Blog post
+blog/index.html      # Blog listing (auto-generates from _posts)
 poems/index.html     # Poetry page
 contact/index.html   # Contact page
 tufte.css            # Tufte CSS framework
-custom.css           # Custom styles (nav, project grid, poem separators)
+custom.css           # Custom styles
 ```
 
-## Adding New Content
+## Adding New Blog Posts
 
-### New Blog Post
-Create `blog/postname/index.html`:
-```html
+Use the `/new-post` command, or manually create a file in `_posts/`:
+
+Filename format: `YYYY-MM-DD-slug.md`
+
+```markdown
 ---
-layout: default
+layout: post
 title: Post Title
+subtitle: Optional subtitle
+slug: urlslug
 ---
 
-<h1>Post Title</h1>
+First paragraph appears as excerpt on blog index.
 
-<p class="subtitle">Optional subtitle</p>
+<!--more-->
 
-<section>
-  <p>Content here...</p>
-</section>
-
-<p><i>Thanks to Theia Vogel for editing.</i></p>
+Rest of the post content here...
 ```
 
-Then add a link in `blog/index.html`.
+- The `slug` determines the URL: `/blog/slug/`
+- Date is extracted from filename
+- First paragraph (before `<!--more-->`) is the excerpt
+- "Thanks to Theia Vogel for editing" is added automatically by the layout
 
-### Modifying Navigation
+## Modifying Navigation
 Edit `_includes/header.html` - changes apply to all pages.
 
 ## Deployment

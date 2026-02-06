@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{{ page.title | default: site.title }}</title>
+
+  <meta name="description" content="{{ site.description }}">
+  <meta property="og:title" content="{{ page.title | default: site.title }}">
+  <meta property="og:description" content="{{ site.description }}">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:type" content="article">
+
+  <link rel="stylesheet" href="/tufte.css" />
+  <link rel="stylesheet" href="/custom.css" />
+</head>
+
+<body>
+  <main>
+    {% include header.html %}
+
+    <h1>{{ page.title }}</h1>
+    {% if page.subtitle %}
+    <p class="subtitle">{{ page.subtitle }}</p>
+    {% endif %}
+    <p class="post-date">Posted {{ page.date | date: "%B %-d, %Y" }}</p>
+
+    <section>
+    {{ content }}
+    </section>
+
+    <p><i>Thanks to Theia Vogel for editing.</i></p>
+
+    {% include footer.html %}
+  </main>
+  <script>
+    window.goatcounter = {
+      path: function (p) { return location.host + p }
+    }
+  </script>
+  <script data-goatcounter="https://stats.vgel.me/count" async src="/count.js"></script>
+</body>
+
+</html>

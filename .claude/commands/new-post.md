@@ -7,30 +7,32 @@ Create a new blog post for Linnea's website.
 1. Ask the user for:
    - **Title** of the post
    - **Subtitle** (or "none")
-   - **Folder name** for the URL (e.g., `mypost` becomes `/blog/mypost`)
+   - **Slug** for the URL (e.g., `mypost` becomes `/blog/mypost/`)
+   - **Date** (or "today" for current date)
 
 2. Once you have the info:
-   - Create the folder `blog/{foldername}/`
-   - Create `blog/{foldername}/index.md` with this template:
+   - Create `_posts/YYYY-MM-DD-slug.md` with this template:
 
 ```markdown
 ---
-layout: default
+layout: post
 title: {title}
+subtitle: {subtitle if provided, otherwise omit this line}
+slug: {slug}
 ---
 
-# {title}
+{First paragraph goes here - this will be the excerpt shown on the blog index}
 
-{subtitle as paragraph if provided, otherwise omit}
+<!--more-->
 
 YOUR TEXT HERE - paste plain text with blank lines between paragraphs.
-
-*Thanks to Theia Vogel for editing.*
 ```
 
-   - Add a link to `blog/index.html` at the top of the posts list
-
-3. Tell the user the file is ready and where to find it
+3. Explain that:
+   - The first paragraph (before `<!--more-->`) will appear as the preview on the blog index
+   - Everything after `<!--more-->` is the rest of the post
+   - The date and "Thanks to Theia Vogel for editing" are added automatically
+   - Tell them where to find the file
 
 4. Wait for the user to confirm they've added the text
 
