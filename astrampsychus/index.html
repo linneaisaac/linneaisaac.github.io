@@ -1,0 +1,224 @@
+---
+layout: default
+title: The Oracles of Astrampsychus
+---
+
+<h1>The Oracles of Astrampsychus</h1>
+
+<p class="subtitle">An ancient Greek oracle book, attributed to the Persian magus Astrampsychus</p>
+
+<div id="oracle-container">
+  <div id="step-question" class="oracle-step">
+    <h2>Step 1: Choose Your Question</h2>
+    <p>Select the question that weighs upon your mind:</p>
+    <select id="question-select">
+      <option value="">-- Select a question --</option>
+    </select>
+  </div>
+
+  <div id="step-lot" class="oracle-step" style="display: none;">
+    <h2>Step 2: Choose Your Lot</h2>
+    <p>As the god inspires you, choose a number from 1 to 10:</p>
+    <div id="lot-buttons">
+      <button class="lot-btn" data-lot="1">1</button>
+      <button class="lot-btn" data-lot="2">2</button>
+      <button class="lot-btn" data-lot="3">3</button>
+      <button class="lot-btn" data-lot="4">4</button>
+      <button class="lot-btn" data-lot="5">5</button>
+      <button class="lot-btn" data-lot="6">6</button>
+      <button class="lot-btn" data-lot="7">7</button>
+      <button class="lot-btn" data-lot="8">8</button>
+      <button class="lot-btn" data-lot="9">9</button>
+      <button class="lot-btn" data-lot="10">10</button>
+    </div>
+  </div>
+
+  <div id="step-answer" class="oracle-step" style="display: none;">
+    <h2>The Oracle Speaks</h2>
+    <p id="chosen-question" class="oracle-question"></p>
+    <blockquote id="oracle-answer"></blockquote>
+    <button id="consult-again">Consult the Oracle Again</button>
+  </div>
+</div>
+
+<style>
+  #oracle-container {
+    max-width: 600px;
+  }
+
+  .oracle-step {
+    margin: 2rem 0;
+  }
+
+  #question-select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  #lot-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .lot-btn {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border: 1px solid #333;
+    background: #fff;
+    font-family: inherit;
+  }
+
+  .lot-btn:hover {
+    background: #eee;
+  }
+
+  .oracle-question {
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+
+  #oracle-answer {
+    font-size: 1.3rem;
+    border-left: 3px solid #333;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  #consult-again {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+</style>
+
+<script>
+// === DATA ===
+// Questions: numbered 12-103
+const questions = {
+  12: "Will I sail safely?",
+  13: "Is it time to consult the oracle?",
+  14: "Will I serve in the army?",
+  15: "Will I have a share in the business?",
+  16: "Will I advance in office?",
+  17: "Will I go out of town?",
+  // ... more questions to be added
+};
+
+// Correspondence table: maps (question + lot) to decade number
+// Keys range from 13 (12+1) to 113 (103+10)
+const correspondenceTable = {
+  // Sample entries - to be filled in from the book
+  13: 1,
+  14: 2,
+  15: 3,
+  16: 4,
+  17: 5,
+  18: 6,
+  19: 7,
+  20: 8,
+  21: 9,
+  22: 10,
+  23: 11,
+  24: 12,
+  25: 13,
+  26: 14,
+  27: 15,
+  // ... more to be added
+};
+
+// Decades: each decade has 10 answers (indexed 1-10)
+const decades = {
+  1: {
+    1: "It is not granted to you now.",
+    2: "You will have a rich old age.",
+    3: "It is going well for you. Don't be upset.",
+    4: "You will not be sold.",
+    5: "You will get the dowry quickly.",
+    6: "It is not to your advantage to go away.",
+    7: "You won't be caught as an adulterer.",
+    8: "You will fare well and accomplish your purpose.",
+    9: "The omen says you will marry the one you love.",
+    10: "You will not be harmed by the person who poisoned you."
+  },
+  2: {
+    1: "You will sail safely and successfully.",
+    2: "You have good expectations, but not now.",
+    3: "Wait and you will do better.",
+    4: "You will be sold, but you will benefit.",
+    5: "Prepare yourself; you will get the dowry.",
+    6: "It is not yet time to go away.",
+    7: "You are going to be caught as an adulterer.",
+    8: "It won't happen now, but later.",
+    9: "You will not marry, but fornicate.",
+    10: "You are being poisoned by someone. Be careful."
+  },
+  // ... more decades to be added
+};
+
+// === LOGIC ===
+let selectedQuestion = null;
+
+function populateQuestions() {
+  const select = document.getElementById('question-select');
+  for (const [num, text] of Object.entries(questions)) {
+    const option = document.createElement('option');
+    option.value = num;
+    option.textContent = `${num}. ${text}`;
+    select.appendChild(option);
+  }
+}
+
+function showStep(stepId) {
+  document.querySelectorAll('.oracle-step').forEach(step => {
+    step.style.display = 'none';
+  });
+  document.getElementById(stepId).style.display = 'block';
+}
+
+function getOracleAnswer(questionNum, lot) {
+  const lookupKey = questionNum + lot;
+  const decadeNum = correspondenceTable[lookupKey];
+
+  if (!decadeNum || !decades[decadeNum]) {
+    return "The oracle is silent on this matter. (Data not yet entered)";
+  }
+
+  return decades[decadeNum][lot] || "The oracle is silent. (Answer not found)";
+}
+
+// === EVENT HANDLERS ===
+document.getElementById('question-select').addEventListener('change', function() {
+  if (this.value) {
+    selectedQuestion = parseInt(this.value);
+    showStep('step-lot');
+  }
+});
+
+document.querySelectorAll('.lot-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const lot = parseInt(this.dataset.lot);
+    const answer = getOracleAnswer(selectedQuestion, lot);
+
+    document.getElementById('chosen-question').textContent =
+      `You asked: "${questions[selectedQuestion]}"`;
+    document.getElementById('oracle-answer').textContent = answer;
+    showStep('step-answer');
+  });
+});
+
+document.getElementById('consult-again').addEventListener('click', function() {
+  document.getElementById('question-select').value = '';
+  selectedQuestion = null;
+  showStep('step-question');
+});
+
+// Initialize
+populateQuestions();
+</script>
