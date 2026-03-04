@@ -1,0 +1,114 @@
+---
+layout: default
+title: Random Text
+---
+
+<h1>Random Text</h1>
+
+<p class="subtitle">Psalms and Song of Solomon interleaved with the Tao Te Ching</p>
+
+<div id="poem"></div>
+
+<p><button id="generate-btn">Generate</button></p>
+
+<style>
+  #poem {
+    max-width: 560px;
+    margin: 2.5rem 0;
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+
+  .stanza {
+    margin-bottom: 2.5rem;
+  }
+
+  .verse {
+    margin: 0;
+  }
+
+  .source {
+    margin: 0.3rem 0 0 0;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #888;
+  }
+
+  .divider {
+    margin: 1rem 0;
+  }
+
+  #generate-btn {
+    padding: 0.4rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    cursor: pointer;
+  }
+</style>
+
+<script src="data.js"></script>
+<script>
+  function pick(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function generatePoem(numStanzas) {
+    numStanzas = numStanzas || 4;
+    const poem = document.getElementById('poem');
+    poem.innerHTML = '';
+
+    for (let i = 0; i < numStanzas; i++) {
+      const stanza = document.createElement('div');
+      stanza.className = 'stanza';
+
+      const v1 = pick(BIBLICAL_VERSES);
+      const v2 = pick(BIBLICAL_VERSES);
+      const s = pick(TAO_STROPHES);
+
+      // Biblical couplet
+      const biblicalDiv = document.createElement('div');
+      const p1 = document.createElement('p');
+      p1.className = 'verse';
+      p1.textContent = v1.text;
+      const p2 = document.createElement('p');
+      p2.className = 'verse';
+      p2.textContent = v2.text;
+      const bsource = document.createElement('p');
+      bsource.className = 'source';
+      bsource.textContent = '— ' + v1.reference + '; ' + v2.reference;
+      biblicalDiv.appendChild(p1);
+      biblicalDiv.appendChild(p2);
+      biblicalDiv.appendChild(bsource);
+
+      // Tao strophe
+      const taoDiv = document.createElement('div');
+      taoDiv.className = 'divider';
+      for (const line of s.lines) {
+        const lp = document.createElement('p');
+        lp.className = 'verse';
+        lp.textContent = line;
+        taoDiv.appendChild(lp);
+      }
+      const tsource = document.createElement('p');
+      tsource.className = 'source';
+      tsource.textContent = '— Tao Te Ching ch. ' + s.chapter + ', "' + s.title + '"';
+      taoDiv.appendChild(tsource);
+
+      stanza.appendChild(biblicalDiv);
+      stanza.appendChild(taoDiv);
+      poem.appendChild(stanza);
+    }
+  }
+
+  document.getElementById('generate-btn').addEventListener('click', function() {
+    generatePoem();
+  });
+
+  generatePoem();
+</script>
+
+<section class="credits">
+  <hr>
+  <p><i>Biblical text: King James Bible (Pure Cambridge Edition).</i></p>
+  <p><i>Tao Te Ching: <a href="https://www.shambhala.com/lao-tzu-tao-te-ching.html">version by Ursula K. Le Guin</a> (Shambhala, 1997).</i></p>
+</section>
