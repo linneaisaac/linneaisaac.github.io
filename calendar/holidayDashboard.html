@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jewish Holiday Observance Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f4f0;
+      color: #1a1a18;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .app {
+      display: flex;
+      min-height: 600px;
+      border: 0.5px solid rgba(0,0,0,0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 210px;
+      flex-shrink: 0;
+      border-right: 0.5px solid rgba(0,0,0,0.12);
+      padding: 1.25rem 0;
+      background: #f9f8f4;
+      overflow-y: auto;
+    }
+
+    .sidebar-group-label {
+      font-size: 10px;
+      color: #888780;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      padding: 1rem 1rem 0.35rem;
+    }
+    .sidebar-group-label:first-child { padding-top: 0.25rem; }
+
+    .holiday-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.5rem 1rem;
+      font-size: 14px;
+      color: #5f5e5a;
+      background: none;
+      border: none;
+      border-left: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.12s;
+      line-height: 1.4;
+    }
+    .holiday-btn:hover { color: #1a1a18; background: #fff; }
+    .holiday-btn.active { color: #1a1a18; background: #fff; border-left-color: #1a1a18; font-weight: 500; }
+
+    /* ── Main ── */
+    .main { flex: 1; overflow-y: auto; }
+
+    /* Date banner */
+    .date-banner {
+      padding: 0.85rem 2rem;
+      border-bottom: 0.5px solid rgba(0,0,0,0.1);
+      background: #f9f8f4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 52px;
+    }
+    .date-upcoming { font-size: 13px; color: #5f5e5a; }
+    .date-upcoming strong { color: #1a1a18; font-weight: 500; }
+    .date-sub { font-size: 12px; color: #888780; margin-top: 2px; }
+    .date-time { font-size: 13px; color: #5f5e5a; display: flex; align-items: center; gap: 6px; }
+    .date-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; flex-shrink: 0; }
+
+    /* Content */
+    .content { padding: 1.5rem 2rem; }
+
+    .holiday-title { font-size: 22px; font-weight: 500; color: #1a1a18; margin-bottom: 0.2rem; }
+    .holiday-hebrew { font-size: 18px; color: #888780; direction: rtl; margin-bottom: 0.2rem; }
+    .holiday-subtitle { font-size: 14px; color: #888780; margin-bottom: 1.25rem; }
+    .holiday-desc {
+      font-size: 15px; color: #5f5e5a; line-height: 1.75;
+      margin-bottom: 1.75rem;
+      border-left: 2px solid rgba(0,0,0,0.12);
+      padding-left: 1rem;
+    }
+
+    .section-title {
+      font-size: 11px; font-weight: 500; color: #888780;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 0.75rem; margin-top: 1.75rem;
+    }
+
+    /* Filter pills */
+    .filter-row { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-btn {
+      font-size: 12px; padding: 4px 12px; border-radius: 20px;
+      border: 0.5px solid rgba(0,0,0,0.2); background: none;
+      cursor: pointer; color: #5f5e5a; transition: all 0.12s;
+    }
+    .filter-btn:hover { background: #f9f8f4; }
+    .filter-btn.active { background: #1a1a18; color: #fff; border-color: #1a1a18; }
+
+    /* Steps */
+    .step {
+      padding: 0.85rem 0;
+      border-bottom: 0.5px solid rgba(0,0,0,0.08);
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num { font-size: 12px; color: #888780; min-width: 20px; padding-top: 3px; }
+    .step-body { flex: 1; }
+    .step-name { font-size: 15px; font-weight: 500; color: #1a1a18; margin-bottom: 3px; }
+    .step-desc { font-size: 13px; color: #5f5e5a; line-height: 1.65; }
+
+    .badge {
+      display: inline-block; font-size: 11px;
+      padding: 2px 7px; border-radius: 10px;
+      margin-left: 8px; vertical-align: middle;
+    }
+    .badge-home { background: #E1F5EE; color: #0F6E56; }
+    .badge-shul { background: #EEEDFE; color: #3C3489; }
+    .badge-either { background: #FAEEDA; color: #633806; }
+
+    /* Blessings */
+    .blessing {
+      background: #f9f8f4;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+      border: 0.5px solid rgba(0,0,0,0.1);
+    }
+    .blessing-name { font-size: 13px; font-weight: 500; color: #1a1a18; margin-bottom: 0.75rem; }
+    .blessing-hebrew {
+      font-size: 18px; direction: rtl; text-align: right;
+      color: #1a1a18; line-height: 1.9; margin-bottom: 0.5rem;
+    }
+    .blessing-transliteration { font-size: 13px; color: #5f5e5a; font-style: italic; margin-bottom: 0.35rem; line-height: 1.6; }
+    .blessing-translation { font-size: 13px; color: #888780; line-height: 1.6; }
+
+    .no-blessings { font-size: 13px; color: #888780; font-style: italic; padding: 0.5rem 0; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <nav class="sidebar" id="sidebar"></nav>
+  <div class="main">
+    <div class="date-banner" id="date-banner"></div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<script src="holidayData.js"></script>
+<script>
+
+/* ── HEBCAL API MAPPING ────────────────────────────────────
+   Maps our data keys to Hebcal API title patterns.
+   start:     regex matching the event that marks the beginning
+   end:       regex matching the last day (for multi-day holidays)
+   label:     text shown in the date banner
+   candleEve: if true, look for candle-lighting on the day *before* the start event
+              (needed when the API has no "Erev" event for a Yom Tov)
+   ────────────────────────────────────────────────────────── */
+const hebcalMap = {
+  roshChodesh:               { start: /^Rosh Chodesh /,        end: null,                   label: "Next Rosh Chodesh"            },
+  roshHashanah:              { start: /^Erev Rosh Hashana$/,   end: /^Rosh Hashana II$/,    label: "Next Rosh Hashanah begins"    },
+  fastOfGedaliah:            { start: /^Tzom Gedaliah$/,       end: null,                   label: "Next Fast of Gedaliah"        },
+  yomKippur:                 { start: /^Erev Yom Kippur$/,     end: /^Yom Kippur$/,         label: "Next Yom Kippur begins"       },
+  sukkot:                    { start: /^Erev Sukkot$/,         end: /^Sukkot VII/,          label: "Next Sukkot begins"           },
+  sheminiAtzeretSimchatTorah:{ start: /^Shmini Atzeret$/,      end: /^Simchat Torah$/,      label: "Next Shemini Atzeret begins", candleEve: true },
+  hanukkah:                  { start: /^Chanukah: 1 Candle$/,  end: /^Chanukah: 8th Day$/,  label: "Next Hanukkah begins"         },
+  tuBiShvat:                 { start: /^Tu BiShvat$/,          end: null,                   label: "Next Tu BiShvat"              },
+  fastOfEsther:              { start: /^Ta'anit Esther$/,      end: null,                   label: "Next Fast of Esther"          },
+  purim:                     { start: /^Purim$/,               end: null,                   label: "Next Purim"                   },
+  pesach:                    { start: /^Erev Pesach$/,         end: /^Pesach VIII$/,         label: "Next Pesach begins"           },
+  lagBOmer:                  { start: /^Lag BaOmer$/,          end: null,                   label: "Next Lag B'Omer"              },
+  shavuot:                   { start: /^Erev Shavuot$/,       end: /^Shavuot II$/,          label: "Next Shavuot begins"          },
+  seventeenthOfTammuz:       { start: /^Tzom Tammuz$/,        end: null,                   label: "Next 17th of Tammuz"          },
+  tuBAv:                     { start: /^Tu B'Av$/,            end: null,                   label: "Next Tu B'Av"                 },
+  tishaBAv:                  { start: /^Erev Tish'a B'Av$/,   end: /^Tish'a B'Av$/,        label: "Next Tisha B'Av begins"       },
+};
+
+const HEBCAL_CITY = "US-Seattle-WA";
+
+/* ── STATE ──────────────────────────────────────────────── */
+let current = "shabbat";
+let filter  = "all";
+let dateInfo = {};
+let datesLoaded = false;
+
+/* ── SIDEBAR CONFIG ─────────────────────────────────────── */
+const sidebarGroups = [
+  { label: "Weekly",         keys: ["shabbat"] },
+  { label: "Monthly",        keys: ["roshChodesh"] },
+  { label: "Major holidays", keys: ["roshHashanah","yomKippur","sukkot","sheminiAtzeretSimchatTorah","pesach","shavuot"] },
+  { label: "Minor holidays", keys: ["hanukkah","purim","tuBiShvat","lagBOmer","tuBAv"] },
+  { label: "Fast days",      keys: ["fastOfGedaliah","fastOfEsther","seventeenthOfTammuz","tishaBAv"] },
+];
+
+/* ── DATE FORMATTING ────────────────────────────────────── */
+function formatDateLong(isoStr) {
+  const d = isoStr.length === 10 ? new Date(isoStr + "T12:00:00") : new Date(isoStr);
+  return d.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+}
+
+function formatTime(isoStr) {
+  const d = new Date(isoStr);
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
+function formatEndDateTime(isoStr) {
+  const d = new Date(isoStr);
+  const day = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return day + " at " + time;
+}
+
+function prevDate(dateStr) {
+  const d = new Date(dateStr + "T12:00:00");
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/* ── HEBCAL API ─────────────────────────────────────────── */
+async function fetchDates() {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const futureDate = new Date();
+    futureDate.setMonth(futureDate.getMonth() + 14);
+    const end = futureDate.toISOString().slice(0, 10);
+
+    const [holidaysRes, shabbatRes] = await Promise.all([
+      fetch("https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=on&nx=on&mf=on&c=on&geo=city&city=" + HEBCAL_CITY + "&start=" + today + "&end=" + end),
+      fetch("https://www.hebcal.com/shabbat?cfg=json&geo=city&city=" + HEBCAL_CITY),
+    ]);
+
+    const holidays = await holidaysRes.json();
+    const shabbat  = await shabbatRes.json();
+
+    /* ── Shabbat (from dedicated endpoint) ── */
+    // When holidays overlap with Shabbat the endpoint returns extra items,
+    // so filter to Friday candle-lighting and Saturday havdalah specifically.
+    const shabCandles  = shabbat.items.find(function(i) {
+      if (i.category !== "candles") return false;
+      return new Date(i.date).getDay() === 5; // Friday
+    });
+    const shabHavdalah = shabbat.items.find(function(i) {
+      if (i.category !== "havdalah") return false;
+      return new Date(i.date).getDay() === 6; // Saturday
+    });
+
+    if (shabCandles) {
+      dateInfo.shabbat = {
+        label: "Next Shabbat begins",
+        day:   formatDateLong(shabCandles.date),
+        time:  formatTime(shabCandles.date),
+        ends:  shabHavdalah ? formatEndDateTime(shabHavdalah.date) : null,
+        location: shabbat.location ? shabbat.location.title : "Seattle, Washington",
+      };
+    }
+
+    /* ── All other holidays (from calendar endpoint) ── */
+    const items = holidays.items;
+    const loc   = holidays.location ? holidays.location.title : "Seattle, Washington";
+
+    for (const [key, config] of Object.entries(hebcalMap)) {
+      const startItem = items.find(i => config.start.test(i.title));
+      if (!startItem) continue;
+
+      const startDateStr = startItem.date.slice(0, 10);
+
+      // Candle lighting: check start date, or day before if candleEve flag is set
+      let candleDateStr = startDateStr;
+      if (config.candleEve) candleDateStr = prevDate(startDateStr);
+      const candleItem = items.find(i => i.category === "candles" && i.date.slice(0, 10) === candleDateStr);
+
+      // End date & havdalah for multi-day holidays
+      let endsStr = null;
+      if (config.end) {
+        const endItem = items.find(i => config.end.test(i.title) && i.date.slice(0, 10) >= startDateStr);
+        if (endItem) {
+          const endDateStr = endItem.date.slice(0, 10);
+          const havdalahItem = items.find(i => i.category === "havdalah" && i.date.slice(0, 10) === endDateStr);
+          endsStr = havdalahItem
+            ? formatEndDateTime(havdalahItem.date)
+            : formatDateLong(endDateStr) + " at nightfall";
+        }
+      }
+
+      // For Rosh Chodesh, include the month name in the label
+      let label = config.label;
+      if (key === "roshChodesh") {
+        const m = startItem.title.match(/^Rosh Chodesh (.+)$/);
+        if (m) label = "Next Rosh Chodesh: " + m[1];
+      }
+
+      dateInfo[key] = {
+        label,
+        day:      formatDateLong(startItem.date),
+        time:     candleItem ? formatTime(candleItem.date) : null,
+        ends:     endsStr,
+        hdate:    startItem.hdate || null,
+        location: loc,
+      };
+    }
+
+    datesLoaded = true;
+    renderBanner();
+  } catch (err) {
+    console.error("Failed to fetch holiday dates:", err);
+    datesLoaded = true;
+    renderBanner();
+  }
+}
+
+/* ── RENDER SIDEBAR ─────────────────────────────────────── */
+function renderSidebar() {
+  document.getElementById("sidebar").innerHTML = sidebarGroups.map(group => "\n" +
+    '<div class="sidebar-group-label">' + group.label + "</div>\n" +
+    group.keys.map(function(key) {
+      var h = holidayData[key];
+      return '<button class="holiday-btn ' + (key === current ? "active" : "") +
+        '" onclick="selectHoliday(\'' + key + '\')">' + h.title + "</button>";
+    }).join("\n")
+  ).join("\n");
+}
+
+/* ── RENDER BANNER ──────────────────────────────────────── */
+function renderBanner() {
+  var banner = document.getElementById("date-banner");
+  var info   = dateInfo[current];
+
+  if (!datesLoaded) {
+    banner.innerHTML = '<div class="date-upcoming" style="font-style:italic;color:#888780;">Loading dates\u2026</div>';
+    return;
+  }
+
+  if (!info) {
+    banner.innerHTML = '<div class="date-upcoming" style="color:#888780;">Date information unavailable</div>';
+    return;
+  }
+
+  var subParts = [];
+  if (info.location) subParts.push(info.location);
+  if (info.ends)     subParts.push("ends " + info.ends);
+  var subLine = subParts.length
+    ? '<div class="date-sub">' + subParts.join(" &middot; ") + "</div>"
+    : "";
+
+  var rightSide = "";
+  if (info.time) {
+    rightSide =
+      '<div class="date-time">' +
+        '<span class="date-dot"></span>' +
+        'Candle lighting at <strong style="margin-left:4px;">' + info.time + "</strong>" +
+      "</div>";
+  } else if (info.hdate) {
+    rightSide = '<div class="date-time" style="color:#888780;">' + info.hdate + "</div>";
+  }
+
+  banner.innerHTML =
+    "<div>" +
+      '<div class="date-upcoming">' + info.label + ": <strong>" + info.day + "</strong></div>" +
+      subLine +
+    "</div>" +
+    rightSide;
+}
+
+/* ── RENDER CONTENT ─────────────────────────────────────── */
+function renderContent() {
+  var h     = holidayData[current];
+  var steps = filter === "all" ? h.steps : h.steps.filter(function(s) { return s.location === filter; });
+
+  function badge(loc) {
+    if (loc === "home") return '<span class="badge badge-home">home</span>';
+    if (loc === "shul") return '<span class="badge badge-shul">shul</span>';
+    return '<span class="badge badge-either">either</span>';
+  }
+
+  var stepsHtml = steps.map(function(s, i) {
+    return '<div class="step">' +
+      '<span class="step-num">' + (i + 1) + "</span>" +
+      '<div class="step-body">' +
+        '<div class="step-name">' + s.name + badge(s.location) + "</div>" +
+        '<div class="step-desc">' + s.desc + "</div>" +
+      "</div></div>";
+  }).join("\n");
+
+  var blessingsHtml;
+  if (h.blessings.length === 0) {
+    blessingsHtml = '<p class="no-blessings">No formal blessings for this observance.</p>';
+  } else {
+    blessingsHtml = h.blessings.map(function(b) {
+      return '<div class="blessing">' +
+        '<div class="blessing-name">' + b.name + "</div>" +
+        '<div class="blessing-hebrew">' + b.hebrew + "</div>" +
+        '<div class="blessing-transliteration">' + b.transliteration + "</div>" +
+        '<div class="blessing-translation">' + b.translation + "</div>" +
+      "</div>";
+    }).join("\n");
+  }
+
+  var filterBtns = ["all","home","shul","either"].map(function(f) {
+    return '<button class="filter-btn ' + (filter === f ? "active" : "") +
+      '" onclick="setFilter(\'' + f + '\')">' +
+      (f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)) +
+      "</button>";
+  }).join("\n");
+
+  document.getElementById("content").innerHTML =
+    '<h1 class="holiday-title">' + h.title + "</h1>" +
+    '<div class="holiday-hebrew">' + h.hebrewName + "</div>" +
+    '<p class="holiday-subtitle">' + h.subtitle + "</p>" +
+    '<p class="holiday-desc">' + h.desc + "</p>" +
+    '<div class="section-title">Order of observance</div>' +
+    '<div class="filter-row">' + filterBtns + "</div>" +
+    stepsHtml +
+    '<div class="section-title">Blessings</div>' +
+    blessingsHtml;
+}
+
+/* ── EVENT HANDLERS ─────────────────────────────────────── */
+window.selectHoliday = function(key) { current = key; filter = "all"; render(); };
+window.setFilter     = function(f)   { filter = f; renderContent(); };
+
+/* ── INIT ───────────────────────────────────────────────── */
+function render() { renderSidebar(); renderBanner(); renderContent(); }
+render();
+fetchDates();
+
+</script>
+</body>
+</html>
