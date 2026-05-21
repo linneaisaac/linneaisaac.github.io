@@ -154,6 +154,7 @@ title: Bentoboard
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  position: relative;
 }
 .bb-todo-label {
   font-variant: small-caps;
@@ -166,17 +167,48 @@ title: Bentoboard
 }
 .bb-todo-text {
   flex: 1;
-  font-size: 1rem;
-  line-height: 1.3;
+  font-size: 1.2rem;
+  line-height: 1.35;
+  color: #1a1a1a;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
+.bb-todo-text-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 1.2rem;
+  line-height: 1.35;
+  color: #1a1a1a;
+  background: #fffdf6;
+  border: 1px solid #8b5a2b;
+  padding: 0.2rem 0.3rem;
+  width: 100%;
+  box-sizing: border-box;
+  resize: none;
+}
 .bb-todo.bb-done .bb-todo-text {
   text-decoration: line-through;
-  color: #999;
+  color: #c4c0b8;
 }
 .bb-todo.bb-done .bb-todo-label {
-  color: #b8a888;
+  color: #d4c8b0;
+}
+.bb-todo-edit {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  font-size: 0.75rem;
+  color: #999;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  font-family: inherit;
+  opacity: 0.6;
+}
+.bb-todo-edit:hover {
+  opacity: 1;
+  color: #8b5a2b;
 }
 
 @media (max-width: 800px) {
@@ -250,7 +282,7 @@ title: Bentoboard
     for (var i = 0; i < groups.length; i++) {
       var arr = VALUES[groups[i]];
       for (var j = 0; j < arr.length; j++) {
-        if (arr[j].key === k) return arr[j];
+        if (arr[j].key === k) return { value: arr[j], meta: groups[i] };
       }
     }
     return null;
@@ -339,24 +371,77 @@ title: Bentoboard
       el.setAttribute("data-size", slot.size);
       var todo = state.todos[slot.id];
       if (todo) {
-        var t = document.createElement("div");
-        t.className = "bb-todo" + (todo.done ? " bb-done" : "");
-        var label = document.createElement("div");
-        label.className = "bb-todo-label";
-        label.textContent = todo.valueName;
-        var text = document.createElement("div");
-        text.className = "bb-todo-text";
-        text.textContent = todo.text;
-        t.appendChild(label);
-        t.appendChild(text);
-        t.addEventListener("click", function() { toggleDone(slot.id); });
-        el.appendChild(t);
+        renderTodo(el, slot.id, todo);
       } else {
         el.classList.add("bb-empty");
         el.addEventListener("click", function() { onSlotClick(slot.id); });
       }
       board.appendChild(el);
     });
+  }
+
+  function renderTodo(el, slotId, todo) {
+    var t = document.createElement("div");
+    t.className = "bb-todo" + (todo.done ? " bb-done" : "");
+
+    var label = document.createElement("div");
+    label.className = "bb-todo-label";
+    // Backfill metaName for old todos saved before meta was tracked
+    if (!todo.metaName) {
+      var v = valueByKey(todo.valueKey);
+      if (v) todo.metaName = v.meta;
+    }
+    label.textContent = todo.metaName ? (todo.metaName + ": " + todo.valueName) : todo.valueName;
+
+    var text = document.createElement("div");
+    text.className = "bb-todo-text";
+    text.textContent = todo.text;
+
+    var editBtn = document.createElement("button");
+    editBtn.className = "bb-todo-edit";
+    editBtn.textContent = "edit";
+    editBtn.title = "Edit this goal";
+    editBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      startEdit(t, text, slotId, todo);
+    });
+
+    t.appendChild(label);
+    t.appendChild(text);
+    t.appendChild(editBtn);
+    t.addEventListener("click", function() { toggleDone(slotId); });
+    el.appendChild(t);
+  }
+
+  function startEdit(todoEl, textEl, slotId, todo) {
+    var input = document.createElement("textarea");
+    input.className = "bb-todo-text-input";
+    input.value = todo.text;
+    todoEl.replaceChild(input, textEl);
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+
+    var cancelled = false;
+    function commit() {
+      if (cancelled) return;
+      var newText = input.value.trim();
+      if (newText) {
+        todo.text = newText;
+        save();
+      }
+      renderBoard();
+    }
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        input.blur();
+      } else if (e.key === "Escape") {
+        cancelled = true;
+        renderBoard();
+      }
+    });
+    input.addEventListener("click", function(e) { e.stopPropagation(); });
   }
 
   function onValueClick(key) {
@@ -394,7 +479,8 @@ title: Bentoboard
     var v = valueByKey(state.pendingText.valueKey);
     state.todos[slotId] = {
       valueKey: state.pendingText.valueKey,
-      valueName: v ? v.name : state.pendingText.valueKey,
+      valueName: v ? v.value.name : state.pendingText.valueKey,
+      metaName: v ? v.meta : "",
       text: state.pendingText.text,
       done: false
     };
