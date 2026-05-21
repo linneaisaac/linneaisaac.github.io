@@ -536,7 +536,12 @@ title: Bentoboard
     state.pendingText = null;
     state.activeValue = null;
     save();
-    setStatus("Goal added. Click a value to add another.");
+    var emptyCount = SLOTS.filter(function(s) { return !state.todos[s.id]; }).length;
+    if (emptyCount === 0) {
+      setStatus("Board is full — delete a goal or clear the board.", true);
+    } else {
+      setStatus("Goal added. Click a value to add another.");
+    }
     renderSidebar();
     renderBoard();
   }
