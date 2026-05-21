@@ -1,0 +1,438 @@
+---
+layout: default
+title: Bentoboard
+---
+
+<style>
+.bb-page {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+  font-family: et-book, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+}
+
+.bb-sidebar h2 {
+  font-size: 1.4rem;
+  margin: 0 0 0.4rem 0;
+}
+.bb-sidebar .bb-hint {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0 0 1.5rem 0;
+}
+.bb-meta {
+  margin-bottom: 1.4rem;
+}
+.bb-meta-title {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: 0.95rem;
+  color: #888;
+  margin-bottom: 0.3rem;
+}
+.bb-value {
+  padding: 0.35rem 0;
+  cursor: pointer;
+  border-bottom: 1px dotted transparent;
+  font-size: 1.05rem;
+}
+.bb-value:hover {
+  border-bottom-color: #999;
+}
+.bb-value.bb-active {
+  font-weight: bold;
+}
+.bb-value-panel {
+  display: none;
+  padding: 0.6rem 0.2rem 0.4rem 0.8rem;
+  border-left: 2px solid #ccc;
+  margin: 0.2rem 0 0.4rem 0.2rem;
+}
+.bb-value.bb-active + .bb-value-panel {
+  display: block;
+}
+.bb-value-desc {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+.bb-value-panel input {
+  width: 100%;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid #bbb;
+  box-sizing: border-box;
+}
+.bb-value-panel button {
+  margin-top: 0.4rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.25rem 0.8rem;
+  background: #f5f5f0;
+  border: 1px solid #aaa;
+  cursor: pointer;
+}
+.bb-value-panel button:hover {
+  background: #e8e8e0;
+}
+
+.bb-board-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.bb-board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+.bb-board-header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+}
+.bb-clear {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: #f5f5f0;
+  border: 1px solid #aaa;
+  cursor: pointer;
+}
+.bb-clear:hover {
+  background: #f0d8d8;
+}
+
+.bb-status {
+  min-height: 1.2rem;
+  font-style: italic;
+  color: #555;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.bb-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 140px);
+  gap: 10px;
+  background: #faf8f2;
+  padding: 12px;
+  border: 1px solid #ddd;
+}
+.bb-slot {
+  border: 1px dashed #c4b8a4;
+  background: #fffdf6;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+.bb-slot[data-size="big"]   { grid-column: span 2; grid-row: span 2; }
+.bb-slot[data-size="wide"]  { grid-column: span 2; grid-row: span 1; }
+.bb-slot[data-size="small"] { grid-column: span 1; grid-row: span 1; }
+
+.bb-board.bb-placing .bb-slot.bb-empty {
+  cursor: pointer;
+  border-color: #8b5a2b;
+  background: #fff5e0;
+  animation: bb-pulse 1.2s ease-in-out infinite;
+}
+@keyframes bb-pulse {
+  0%, 100% { background: #fff5e0; }
+  50%      { background: #ffe6b8; }
+}
+
+.bb-todo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+.bb-todo-label {
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  color: #8b5a2b;
+  border-bottom: 1px solid #d8c8a8;
+  padding-bottom: 0.2rem;
+  margin-bottom: 0.4rem;
+}
+.bb-todo-text {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.bb-todo.bb-done .bb-todo-text {
+  text-decoration: line-through;
+  color: #999;
+}
+.bb-todo.bb-done .bb-todo-label {
+  color: #b8a888;
+}
+
+@media (max-width: 800px) {
+  .bb-page {
+    grid-template-columns: 1fr;
+  }
+  .bb-board {
+    grid-template-rows: repeat(3, 110px);
+  }
+}
+</style>
+
+<div class="bb-page">
+  <aside class="bb-sidebar">
+    <h2>Values</h2>
+    <p class="bb-hint">Try to pick at least one goal from each of Being, Belonging, and Becoming.</p>
+    <div id="bb-values"></div>
+  </aside>
+
+  <div class="bb-board-wrap">
+    <div class="bb-board-header">
+      <h1>Bentoboard</h1>
+      <button class="bb-clear" id="bb-clear">Clear board</button>
+    </div>
+    <div class="bb-status" id="bb-status">Click a value on the left to add a goal.</div>
+    <div class="bb-board" id="bb-board"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var VALUES = {
+    Being: [
+      { key: "refresh", name: "Refresh", desc: "Sleep, rest, relax, regroup." },
+      { key: "nourish", name: "Nourish", desc: "Food, water, medications." },
+      { key: "tend",    name: "Tend",    desc: "Personal hygiene, care, beauty, wardrobe." }
+    ],
+    Belonging: [
+      { key: "nest",    name: "Nest",    desc: "Homemaking, home improvements, gardening." },
+      { key: "connect", name: "Connect", desc: "Family, friends." },
+      { key: "serve",   name: "Serve",   desc: "Community-oriented, acts of service, helping friends and family." }
+    ],
+    Becoming: [
+      { key: "grow",    name: "Grow",    desc: "Learning, studying, exercise, developing body and mind." },
+      { key: "explore", name: "Explore", desc: "Going out, trying new things, leaving the nest, errands." },
+      { key: "create",  name: "Create",  desc: "Arts, crafts, writing, music, projects and hobbies." }
+    ]
+  };
+
+  // Slot layout: 7 slots, mixed sizes
+  var SLOTS = [
+    { id: 0, size: "big"   },
+    { id: 1, size: "small" },
+    { id: 2, size: "small" },
+    { id: 3, size: "wide"  },
+    { id: 4, size: "wide"  },
+    { id: 5, size: "small" },
+    { id: 6, size: "small" }
+  ];
+
+  var STORAGE_KEY = "bentoboard.v1";
+
+  var state = {
+    todos: {}, // slotId -> { valueKey, valueName, text, done }
+    activeValue: null,
+    pendingText: null
+  };
+
+  function valueByKey(k) {
+    var groups = Object.keys(VALUES);
+    for (var i = 0; i < groups.length; i++) {
+      var arr = VALUES[groups[i]];
+      for (var j = 0; j < arr.length; j++) {
+        if (arr[j].key === k) return arr[j];
+      }
+    }
+    return null;
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ todos: state.todos }));
+    } catch (e) {}
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      if (data && data.todos) state.todos = data.todos;
+    } catch (e) {}
+  }
+
+  function setStatus(msg) {
+    document.getElementById("bb-status").textContent = msg;
+  }
+
+  function renderSidebar() {
+    var container = document.getElementById("bb-values");
+    container.innerHTML = "";
+    Object.keys(VALUES).forEach(function(meta) {
+      var section = document.createElement("div");
+      section.className = "bb-meta";
+      var title = document.createElement("div");
+      title.className = "bb-meta-title";
+      title.textContent = meta;
+      section.appendChild(title);
+
+      VALUES[meta].forEach(function(v) {
+        var item = document.createElement("div");
+        item.className = "bb-value";
+        if (state.activeValue === v.key) item.classList.add("bb-active");
+        item.textContent = v.name;
+        item.addEventListener("click", function() { onValueClick(v.key); });
+        section.appendChild(item);
+
+        var panel = document.createElement("div");
+        panel.className = "bb-value-panel";
+        var desc = document.createElement("div");
+        desc.className = "bb-value-desc";
+        desc.textContent = v.desc;
+        panel.appendChild(desc);
+
+        var input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = "Your goal…";
+        input.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commitGoal(v.key, input.value);
+          }
+        });
+        panel.appendChild(input);
+
+        var btn = document.createElement("button");
+        btn.textContent = "Next";
+        btn.addEventListener("click", function() {
+          commitGoal(v.key, input.value);
+        });
+        panel.appendChild(btn);
+
+        section.appendChild(panel);
+
+        if (state.activeValue === v.key) {
+          setTimeout(function() { input.focus(); }, 0);
+        }
+      });
+
+      container.appendChild(section);
+    });
+  }
+
+  function renderBoard() {
+    var board = document.getElementById("bb-board");
+    board.innerHTML = "";
+    board.classList.toggle("bb-placing", state.pendingText !== null);
+    SLOTS.forEach(function(slot) {
+      var el = document.createElement("div");
+      el.className = "bb-slot";
+      el.setAttribute("data-size", slot.size);
+      var todo = state.todos[slot.id];
+      if (todo) {
+        var t = document.createElement("div");
+        t.className = "bb-todo" + (todo.done ? " bb-done" : "");
+        var label = document.createElement("div");
+        label.className = "bb-todo-label";
+        label.textContent = todo.valueName;
+        var text = document.createElement("div");
+        text.className = "bb-todo-text";
+        text.textContent = todo.text;
+        t.appendChild(label);
+        t.appendChild(text);
+        t.addEventListener("click", function() { toggleDone(slot.id); });
+        el.appendChild(t);
+      } else {
+        el.classList.add("bb-empty");
+        el.addEventListener("click", function() { onSlotClick(slot.id); });
+      }
+      board.appendChild(el);
+    });
+  }
+
+  function onValueClick(key) {
+    if (state.activeValue === key) {
+      state.activeValue = null;
+      state.pendingText = null;
+      setStatus("Click a value on the left to add a goal.");
+    } else {
+      state.activeValue = key;
+      state.pendingText = null;
+      setStatus("Type your goal, then click Next.");
+    }
+    renderSidebar();
+    renderBoard();
+  }
+
+  function commitGoal(key, text) {
+    text = (text || "").trim();
+    if (!text) {
+      setStatus("Please type a goal first.");
+      return;
+    }
+    var emptyCount = SLOTS.filter(function(s) { return !state.todos[s.id]; }).length;
+    if (emptyCount === 0) {
+      setStatus("Board is full — clear it or finish something before adding more.");
+      return;
+    }
+    state.pendingText = { valueKey: key, text: text };
+    setStatus("Click a slot to place your goal.");
+    renderBoard();
+  }
+
+  function onSlotClick(slotId) {
+    if (!state.pendingText) return;
+    var v = valueByKey(state.pendingText.valueKey);
+    state.todos[slotId] = {
+      valueKey: state.pendingText.valueKey,
+      valueName: v ? v.name : state.pendingText.valueKey,
+      text: state.pendingText.text,
+      done: false
+    };
+    state.pendingText = null;
+    state.activeValue = null;
+    save();
+    setStatus("Goal added. Click a value to add another.");
+    renderSidebar();
+    renderBoard();
+  }
+
+  function toggleDone(slotId) {
+    var todo = state.todos[slotId];
+    if (!todo) return;
+    todo.done = !todo.done;
+    save();
+    renderBoard();
+  }
+
+  function clearBoard() {
+    if (Object.keys(state.todos).length === 0) {
+      setStatus("Board is already empty.");
+      return;
+    }
+    if (!confirm("Clear all goals from the board?")) return;
+    state.todos = {};
+    state.activeValue = null;
+    state.pendingText = null;
+    save();
+    setStatus("Board cleared.");
+    renderSidebar();
+    renderBoard();
+  }
+
+  document.getElementById("bb-clear").addEventListener("click", clearBoard);
+
+  load();
+  renderSidebar();
+  renderBoard();
+})();
+</script>
