@@ -107,11 +107,16 @@ title: Bentoboard
 }
 
 .bb-status {
-  min-height: 1.2rem;
+  min-height: 1.5rem;
   font-style: italic;
-  color: #555;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 0.6rem;
+  font-size: 1.15rem;
+}
+.bb-status.bb-status-alert {
+  color: #a04030;
+  font-weight: bold;
+  font-style: normal;
 }
 
 .bb-board {
@@ -210,6 +215,24 @@ title: Bentoboard
   opacity: 1;
   color: #8b5a2b;
 }
+.bb-todo-remove {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #999;
+  background: transparent;
+  border: none;
+  padding: 2px 5px;
+  cursor: pointer;
+  font-family: inherit;
+  opacity: 0.5;
+}
+.bb-todo-remove:hover {
+  opacity: 1;
+  color: #a04030;
+}
 
 @media (max-width: 800px) {
   .bb-page {
@@ -302,8 +325,10 @@ title: Bentoboard
     } catch (e) {}
   }
 
-  function setStatus(msg) {
-    document.getElementById("bb-status").textContent = msg;
+  function setStatus(msg, alert) {
+    var el = document.getElementById("bb-status");
+    el.textContent = msg;
+    el.classList.toggle("bb-status-alert", !!alert);
   }
 
   function renderSidebar() {
@@ -406,11 +431,28 @@ title: Bentoboard
       startEdit(t, text, slotId, todo);
     });
 
+    var removeBtn = document.createElement("button");
+    removeBtn.className = "bb-todo-remove";
+    removeBtn.innerHTML = "&times;";
+    removeBtn.title = "Clear this slot";
+    removeBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      removeTodo(slotId);
+    });
+
     t.appendChild(label);
     t.appendChild(text);
     t.appendChild(editBtn);
+    t.appendChild(removeBtn);
     t.addEventListener("click", function() { toggleDone(slotId); });
     el.appendChild(t);
+  }
+
+  function removeTodo(slotId) {
+    delete state.todos[slotId];
+    save();
+    setStatus("Slot cleared. Click a value to fill it.");
+    renderBoard();
   }
 
   function startEdit(todoEl, textEl, slotId, todo) {
@@ -466,7 +508,7 @@ title: Bentoboard
     }
     var emptyCount = SLOTS.filter(function(s) { return !state.todos[s.id]; }).length;
     if (emptyCount === 0) {
-      setStatus("Board is full — clear it or finish something before adding more.");
+      setStatus("Board is full — clear a slot or the whole board before adding more.", true);
       return;
     }
     state.pendingText = { valueKey: key, text: text };
