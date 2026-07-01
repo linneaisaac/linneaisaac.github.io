@@ -1,0 +1,160 @@
+---
+layout: default
+title: Portfolio
+---
+
+<style>
+.pf-intro {
+  margin-bottom: 2rem;
+}
+.pf-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+.pf-col h2 {
+  margin-top: 0;
+}
+.pf-role {
+  font-style: italic;
+  padding-left: 1rem;
+  border-left: 3px solid #999;
+  margin-bottom: 1.8rem;
+}
+.pf-project {
+  margin-bottom: 1.8rem;
+}
+.pf-project h3 {
+  margin-bottom: 0.3rem;
+}
+.pf-project p {
+  margin-top: 0;
+}
+@media (max-width: 800px) {
+  .pf-columns {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+</style>
+
+<section class="pf-intro">
+  <h1>Portfolio</h1>
+  <p>A selection of projects I've shipped, solo and in collaboration.</p>
+</section>
+
+<section class="pf-columns">
+
+  <div class="pf-col">
+    <h2>Solo &amp; Claude-Code Projects</h2>
+    <p class="pf-role">
+      On these I own the whole loop — scoping, driving Claude Code to build,
+      working with users, and shipping. High agency and adaptability.
+    </p>
+
+    <div class="pf-project">
+      <h3><a href="/bentoboard/">Bentoboard</a></h3>
+      <p>
+        A values-driven todo board — pick a value (Refresh, Connect, Create…),
+        write a goal, drop it into a bento-shaped slot. Built with my mom as
+        the first user, iterating on the design in real time during a single
+        working session.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3><a href="/astrampsychus/">The Oracles of Astrampsychus</a></h3>
+      <p>
+        An interactive version of an ancient Greek oracle book attributed to
+        an Egyptian magus. Pick a question, choose your lot as god inspires
+        you, and receive the oracle's answer. Reconstructed the full
+        correspondence table and question set from historical sources.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3><a href="/calendar/">Jewish Calendar Dashboard</a></h3>
+      <p>
+        A single-page dashboard covering every major and minor Jewish holiday
+        — descriptions, order of observance, and relevant blessings in Hebrew,
+        transliteration, and translation. Uses the Hebcal API to show the next
+        instance of each holiday with candle-lighting times.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3>Poker Trainer</h3>
+      <p>
+        A drilling app for practicing poker fundamentals. Built with a
+        specific player in mind and iterated on based on their sessions.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3><a href="https://github.com/linneaisaac/claude-review">Claude Review</a></h3>
+      <p>
+        A Claude Code skill for recapping recent sessions across projects —
+        what was worked on, what got stuck, what's next. My most PM-flavored
+        project: it exists because I wanted a way to hand off context between
+        sessions and stakeholders cleanly.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3><a href="https://github.com/linneaisaac/bibliomancy">Bibliomancy</a></h3>
+      <p>
+        A Claude Code skill that draws a random passage from a chosen text —
+        a small, playful tool for daily reflection.
+      </p>
+    </div>
+  </div>
+
+  <div class="pf-col">
+    <h2>Collaborations with Theia Pearson-Vogel</h2>
+    <p class="pf-role">
+      On these I led the PM side — scoping, timelines, playtesting, and
+      making sure we shipped (game jams especially). Also contributed to
+      design, writing, and art.
+    </p>
+
+    <div class="pf-project">
+      <h3><a href="https://sortesalearum.com/">Sortes Alearum</a></h3>
+      <p>
+        A webpage simulating an ancient Greek dice-oracle — a kind of ancient
+        fortune-cookie. Divine advice drawn straight from inscriptions found
+        at historical sites in modern Turkey.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3><a href="https://vgel.itch.io/the-sacred-text">The Sacred Text</a></h3>
+      <p>
+        A short myth-making game / personality test made for GMTK Jam 2019,
+        about the process of redaction that formed the great religious texts
+        and canons. As a would-be god, choose your one true message, and see
+        where it ends up.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3><a href="https://vgel.itch.io/the-flock-and-the-flood">The Flock and the Flood</a></h3>
+      <p>
+        Created for Ludum Dare 51, you must protect and grow your flock of
+        sheep for as long as you can, until the temple their efforts built is
+        all that remains above the tides.
+      </p>
+    </div>
+
+    <div class="pf-project">
+      <h3><a href="https://vgel.itch.io/mezentople">The Fall of Mezentople</a></h3>
+      <p>
+        Created for Ludum Dare 50, a game about the shape and color of
+        decline. Mezentople will fall — but your choices shape the course.
+        Explore the late years of a fading empire at the end of antiquity,
+        as you make choices affecting the vibrancy and cohesion of eight
+        unique cities.
+      </p>
+    </div>
+  </div>
+
+</section>
